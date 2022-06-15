@@ -11,3 +11,13 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.fullHeight {
+  height: calc(100vh - 48px);
+}
+.min_fullHeight{
+  min-height: calc(100vh - 48px);
+}
+.p{
+  padding:8px
+}
