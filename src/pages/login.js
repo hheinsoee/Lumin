@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from "axios";
-import { Button, TextField } from '@mui/material';
+import { Box, Button, FormControl, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
 import {
     BrowserRouter as Router,
     Routes,
@@ -9,68 +9,15 @@ import {
     Link
 } from "react-router-dom";
 import useLocalStorage from '../hooks/localStorage';
+import useAuth from '../hooks/auth';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 function Login(props) {
-
-    const [token, setToken] = useState(localStorage.getItem('token') || false);
-
     const [username, setUsername] = useState();
     const [password, setPassword] = useState();
-    const [sending, setSending] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
-
-    function login() {
-        let headersList = {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        }
-        let bodyContent = JSON.stringify({
-            "email": username,
-            "password": password
-        });
-
-        let reqOptions = {
-            url: process.env.REACT_APP_API_URL + 'login',
-            method: "POST",
-            headers: headersList,
-            data: bodyContent,
-        }
-        setSending(true);
-        axios.request(reqOptions)
-            .then(function (response) {
-                setSending(false);
-                setToken(response.data);
-                localStorage.setItem("token", response.data);
-            })
-            .catch(function (error) {
-                setSending(false);
-                console.log(error);
-            })
-    }
-
-    useEffect(() => {
-        if (token) {
-            let headersList = {
-                "Accept": "application/json",
-                "Authorization": "Bearer " + token
-            }
-
-            let reqOptions = {
-                url: process.env.REACT_APP_API_URL + "me",
-                method: "GET",
-                headers: headersList,
-            }
-            axios.request(reqOptions)
-                .then(function (response) {
-                    localStorage.setItem("user", JSON.stringify(response.data));
-                    window.location.reload();
-                })
-                .catch(function (error) {
-                    console.log(error);
-                })
-
-        }
-    }, [token]);
+    const { loading, signin } = useAuth();
 
     const myusername = event => {
         setUsername(event.target.value);
@@ -78,25 +25,67 @@ function Login(props) {
     const mypassword = event => {
         setPassword(event.target.value);
     };
+    function submit() {
+        signin(username, password);
+    }
+
+    function handleClickShowPassword() {
+        setShowPassword(!showPassword)
+    }
     return (
-        <div>
+
+        <Box sx={{
+            maxWidth: 400,
+            mx: 'auto', // margin left & right
+            my: 4, // margin top & botom
+            py: 3, // padding top & bottom
+            px: 2, // padding left & right
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+        }}>
             <TextField
-                label="Text Input"
+                label="Username"
+                type="email"
                 value={username}
                 onChange={myusername}
             />
-            <TextField
-                label="Text Input"
-                value={password}
-                onChange={mypassword}
-            />
-            <Button onClick={login}>Login</Button>
+            <FormControl>
+                <TextField
+                    label="Password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={mypassword}
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position='end'>
+                                <IconButton
+                                    aria-label='toggle password visibility'
+                                    onClick={handleClickShowPassword}
+                                //   onMouseDown={handleMouseDownPassword}
+                                >
+                                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                                </IconButton>
+                            </InputAdornment>
+                        ),
+                    }}
+                />
+            </FormControl>
+            <Button onClick={submit}
+                variant="outlined">Sign In</Button>
+            <Typography
+                endDecorator={<Link href="/sign-up">Sign up</Link>}
+                fontSize="sm"
+                sx={{ alignSelf: 'center' }}
+            >
+                Don't have an account?
+            </Typography>
             <div>
                 {
-                    sending && 'sending...'
+                    loading && 'sending...'
                 }
             </div>
-        </div>
+        </Box>
     );
 }
 

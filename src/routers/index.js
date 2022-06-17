@@ -14,37 +14,42 @@ import Customer from '../pages/customer';
 import Dashboard from '../pages/dashboard';
 import Item from '../pages/item';
 import Login from '../pages/login';
+import Logout from '../pages/logout';
 import Receive from '../pages/receive';
 import Sale from '../pages/sale';
 
 function MyRouter(props) {
-    var auth = useAuth();
-    console.log(auth);
+    var {user,signout} = useAuth();
     return (
         <Router>
-            <div className='min_fullHeight'>
-                <Routes>
-                    {
-                        auth.user
-                            ? (
-                                <>
-                                    <Route path='/items' element={<Item />} />
-                                    <Route path='/customers' element={<Customer />} />
-                                    <Route path='/sales' element={<Sale />} />
-                                    <Route path='/Receives' element={<Receive />} />
-                                    <Route path='/' element={<Dashboard />} />
-                                    ok
-                                </>
-                            )
-                            :
-                            <Route path='/login' element={<Login />} />
-                    }
-                    <Route path='/*' element={<Navigate to={auth.user? "/" : "/login"}/> } />
-                </Routes>
-            </div>
-            <div style={{ position: "sticky", bottom: 0, height: '48px' }}>
-                <MyNav />
-            </div>
+
+            {
+                user
+                    ?
+                    <>
+                        <div className='min_fullHeight'>
+                            <Routes>
+                                <Route path='/items' element={<Item />} />
+                                <Route path='/customers' element={<Customer />} />
+                                <Route path='/sales' element={<Sale />} />
+                                <Route path='/Receives' element={<Receive />} />
+                                <Route path='/sales/t' element={<Dashboard />} />
+                                <Route path='/' element={<Dashboard />} />
+                                <Route path='/login' element={<Navigate to="/" />} />
+                                <Route path='/logout'element={<Logout />} />
+                            </Routes>
+                        </div>
+                        <div style={{ position: "sticky", bottom: 0, height: '48px' }}>
+                            <MyNav />
+                        </div>
+                    </>
+                    :
+                    <Routes>
+                        <Route path='/*' element={<Navigate to={user ? "/" : "/login"} />} />
+                        <Route path='/login' element={<Login />} />
+                    </Routes>
+            }
+
         </Router>
     );
 }

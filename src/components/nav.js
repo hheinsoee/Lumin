@@ -2,41 +2,42 @@ import * as React from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { lang } from '../functions';
+import { Button } from '@mui/material';
+import useAuth from '../hooks/auth';
 
 export default function MyNav() {
-    const [value, setValue] = React.useState(0);
+    let path = useLocation().pathname;
+    const [value, setValue] = React.useState(path);
     const navigate = useNavigate();
-
-    
+    const { signout } = useAuth();
     const links = [
         { label: "Dashboard", link: "/" },
         { label: "Item", link: "/items" },
         { label: "Customer", link: "/customers" },
         { label: "Sale", link: "/sales" },
         { label: "Receive", link: "/receives" },
+        { label: "Logout", link: "/logout" }
     ]
-    const handleChange = (event, newValue) => {
+
+    const handleChange = (event: React.SyntheticEvent, newValue: string) => {
         setValue(newValue);
-        navigate(links[newValue].link)
+        navigate(newValue);
     };
+
     return (
-        <Box sx={{ width: '100%' }} bgcolor="#dfdfdf">
-            <Tabs
-                onChange={handleChange}
-                value={value}
-                variant="scrollable"
-                scrollButtons="auto"
-                aria-label="Tabs where selection follows focus"
-                selectionFollowsFocus
-            >
-                {
-                    links.map((l, i) => {
-                        return <Tab key={i} label={lang(l.label)} />
-                    })
-                }
-            </Tabs>
-        </Box>
+        <Tabs
+            value={value}
+            onChange={handleChange}
+            aria-label="wrapped label tabs example"
+        >
+            {
+                links.map((l, i) => {
+                    return <Tab key={i} value={l.link} label={lang(l.label)} />
+                })
+            }
+        </Tabs>
+
     );
 }

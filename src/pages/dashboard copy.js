@@ -2,24 +2,19 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button, TextField } from '@mui/material';
 import useAuth from '../hooks/auth';
-import useLocalDB from '../hooks/localDB';
 
 function Dashboard(props) {
     const [loading, setLoading] = useState(false);
     const [sending, setSending] = useState(false);
     const [error, setError] = useState(false);
-    const { towns, setTowns, insertTown, dropTable, createTable } = useLocalDB();
+    const [towns, setTowns] = useState([]);
 
-    const [newTown, setNewTown] = useState('');
+    const [newTown, setNewTown] = useState(null);
 
-    const { token, signout } = useAuth();
-
-
-
-    function loadTown() {//local storage မှ or http
-        dropTable();
-        createTable();
+    const {token,signout} = useAuth();
+    useEffect(() => {//local storage မှ or http
         setLoading(true);
+
         let headersList = {
             "Accept": "application/json",
             "Content-Type": "application/json",
@@ -33,17 +28,16 @@ function Dashboard(props) {
         }
         axios.request(reqOptions)
             .then(function (response) {
-
+                
                 setLoading(false);
                 setTowns(response.data);
-                insertTown(response.data);
             })
             .catch(function (error) {
                 setLoading(false);
                 error.response.status == 401 && signout();
             })
 
-    };
+    }, []);
 
     function post() {
         setSending(true);
@@ -68,7 +62,6 @@ function Dashboard(props) {
             .then(function (response) {
                 setTowns([...towns, response.data]);//check validation
                 setSending(false);
-                insertTown(response.data);
                 setNewTown('');
             })
             .catch(function (error) {
@@ -80,7 +73,6 @@ function Dashboard(props) {
     const handleTextInputChange = event => {
         setNewTown(event.target.value);
     };
-
     return (
         <React.Fragment>
             {
@@ -104,8 +96,10 @@ function Dashboard(props) {
                     </div>
             }
             <hr />
-            <Button onClick={loadTown}>load Online</Button>
-
+            <h1>Sarun</h1>
+            <div>Date range</div>
+            <div>graph</div>
+            <div>Summery</div>
 
         </React.Fragment>
     );
